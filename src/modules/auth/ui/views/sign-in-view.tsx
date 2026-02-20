@@ -9,6 +9,7 @@ import { OctagonAlertIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { authClient } from "@/lib/auth-client";
+import { FaGithub, FaGoogle} from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -18,8 +19,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -45,11 +46,12 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+          callbackURL: "/"   // // The redirect URL after verification
+  
       },
       {
         onSuccess: () => {
           setPending(false);
-          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
@@ -57,6 +59,27 @@ export const SignInView = () => {
       },
     );
   };
+
+   const onSocial = (provider: "github"|"google") => {
+      setError(null);
+      setPending(true);
+      authClient.signIn.social(
+        {
+          provider: provider,
+          callbackURL: "/"
+        },
+        {
+          onSuccess: () => {
+            setPending(false);
+            void router.push("/");
+          },
+          onError: ({ error }) => {
+            setPending(false);
+            setError(error.message);
+          },
+        },
+      );
+    };
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -108,7 +131,7 @@ export const SignInView = () => {
                 </div>
                 {!!error && (
                   <Alert className="bg-destructive/10 border-none">
-                    <OctagonAlertIcon className="h-4 w-4 !text-destructive" />
+                    <OctagonAlertIcon className="h-4 w-4 text-destructive!" />
                     <AlertTitle>{error}</AlertTitle>
                   </Alert>
                 )}
@@ -122,11 +145,32 @@ export const SignInView = () => {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Button disabled={pending} variant="outline" type="button" className="w-full">
-                  Google
+                <Button
+                  disabled={pending}
+                  onClick={() => {
+                    authClient.signIn.social({
+                      provider: "google",
+                  })
+                }}
+                  variant="outline"
+                  type="button"
+                  className="w-full"
+                >
+                  <FaGoogle/>
                 </Button>
-                <Button disabled={pending} variant="outline" type="button" className="w-full">
-                  Github
+                <Button
+                  disabled={pending}
+// GitHub OAuth social login 
+                  onClick={() =>{
+                    authClient.signIn.social({
+                      provider: "github",
+                    })
+                  }}
+                  variant="outline"
+                  type="button"
+                  className="w-full"
+                >
+                  <FaGithub />
                 </Button>
                 <div className="text-center text-sm">
                   Don't have an account?{" "}
@@ -144,7 +188,7 @@ export const SignInView = () => {
             <img
               src="/logo.svg.png"
               alt="Image"
-              className="h-[92px] w-[92px]"
+              className="h-23 w-23"
             />
             <p className="text-2xl font-semibold text-white">Meet.AI</p>
           </div>
