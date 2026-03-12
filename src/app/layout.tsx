@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
-// import { TRPCReactProvider } from "@/trpc/client";
+import { TRPCReactProvider } from "@/trpc/client";
 
 import "./globals.css";
 
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     // <NuqsAdapter>
-    //   <TRPCReactProvider>
+      <TRPCReactProvider>
         <html lang="en">
           <body
             className={`${inter.className} antialiased`}
@@ -31,7 +31,7 @@ export default function RootLayout({
             {children}
           </body>
         </html>
-    //   </TRPCReactProvider>
+       </TRPCReactProvider>
     // </NuqsAdapter>
   );
 }
